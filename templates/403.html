@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block title %}Доступ запрещён{% endblock %}
+{% block content %}
+<h1>403. Доступ запрещён</h1>
+<p>У вашей роли нет прав для просмотра этой страницы.</p>
+<p><a href="{% url 'core:index' %}">Вернуться на главную</a></p>
+{% endblock %}
