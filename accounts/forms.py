@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.password_validation import password_validators_help_text_html, validate_password
 
 User = get_user_model()
 
@@ -33,3 +34,34 @@ class LoginForm(AuthenticationForm):
 
     def clean_username(self):
         return self.cleaned_data['username'].strip().lower()
+
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(label='Введите ваш Email', max_length=150)
+
+
+class ResetPasswordForm(forms.Form):
+    password = forms.CharField(
+        label='Новый пароль', strip=False, widget=forms.PasswordInput,
+        help_text=password_validators_help_text_html(),
+    )
+    confirm_password = forms.CharField(
+        label='Подтвердите пароль', strip=False, widget=forms.PasswordInput,
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        validate_password(password, self.user)
+        return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm = cleaned_data.get('confirm_password')
+        if password and confirm and password != confirm:
+            self.add_error('confirm_password', 'Пароли не совпадают.')
+        return cleaned_data
