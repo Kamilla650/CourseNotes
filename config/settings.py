@@ -123,4 +123,20 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'   
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'profile'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login' 
+# --- Почта ---
+# По умолчанию письма выводятся в консоль (для разработки и тестов)
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+# Яндекс: smtp.yandex.ru, Mail.ru: smtp.mail.ru
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.yandex.ru')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '465'))
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'True').strip().lower() in ('1', 'true', 'yes')  # обязательно для порта 465
+EMAIL_USE_TLS = False  # TLS отключён, так как используется SSL
+EMAIL_TIMEOUT = 10  # секунд, чтобы страница не зависала при недоступном сервере
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+# Здесь указывается ПАРОЛЬ ПРИЛОЖЕНИЯ из настроек почты, а не основной пароль ящика
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or 'noreply@coursenotes.local'
+
+# Время жизни ссылки для сброса пароля, минут
+PASSWORD_RESET_MINUTES = 30
