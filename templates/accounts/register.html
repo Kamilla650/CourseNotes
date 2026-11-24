@@ -1,40 +1,65 @@
+
 {% extends 'base.html' %}
-{% block title %}Регистрация{% endblock %}
+
+{% block title %}Регистрация — CourseNotes{% endblock %}
+
 {% block content %}
-<h1>Регистрация</h1>
-<form method="post" id="register-form" novalidate>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <p id="client-errors" class="client-errors" hidden></p>
-    <button type="submit">Зарегистрироваться</button>
-</form>
-<p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+<section class="page-section">
+    <h1>Регистрация в CourseNotes</h1>
+    <p class="page-description">
+        Создайте учётную запись для работы с приложением.
+    </p>
 
-<script>
-document.getElementById('register-form').addEventListener('submit', function (e) {
-    const email = this.elements['email'].value.trim();
-    const pass1 = this.elements['password1'].value;
-    const pass2 = this.elements['password2'].value;
-    const errors = [];
+    <article class="card">
+        <form method="post" id="register-form" novalidate>
+            {% csrf_token %}
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors.push('Введите корректный email.');
-    }
-    if (pass1.length < 8) {
-        errors.push('Пароль должен содержать не менее 8 символов.');
-    }
-    if (pass1 !== pass2) {
-        errors.push('Пароли не совпадают.');
-    }
+            {% for field in form %}
+                <p class="form-field">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
 
-    const box = document.getElementById('client-errors');
-    if (errors.length > 0) {
-        e.preventDefault();
-        box.textContent = errors.join(' ');
-        box.hidden = false;
-    } else {
-        box.hidden = true;
-    }
-});
-</script>
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <span class="form-help">
+                            {{ field.help_text|safe }}
+                        </span>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <span class="field-error" role="alert">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                </p>
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                <div class="field-error" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div
+                id="client-errors"
+                class="client-errors"
+                role="alert"
+                aria-live="polite"
+                hidden
+            ></div>
+
+            <button type="submit" class="btn">
+                Зарегистрироваться
+            </button>
+        </form>
+
+        <p>
+            Уже есть аккаунт?
+            <a href="{% url 'login' %}">Войти</a>
+        </p>
+    </article>
+</section>
+
 {% endblock %}

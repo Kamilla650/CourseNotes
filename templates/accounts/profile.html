@@ -1,9 +1,46 @@
+
 {% extends 'base.html' %}
-{% block title %}Профиль{% endblock %}
+
+{% block title %}Профиль — CourseNotes{% endblock %}
+
 {% block content %}
-<h1>Профиль</h1>
-<p><strong>ФИО:</strong> {{ user.full_name }}</p>
-<p><strong>Email:</strong> {{ user.email }}</p>
-<p><strong>Роль:</strong> {{ user.get_role_display }}</p>
-<p><strong>Дата регистрации:</strong> {{ user.created_at|date:"d.m.Y H:i" }}</p>
+
+<section class="page-section">
+
+    <h1>Личный профиль</h1>
+
+    <p class="page-description">
+        Информация вашей учётной записи.
+    </p>
+
+    <article class="card">
+
+        <div class="profile-list">
+
+            <div class="profile-item">
+                <strong>ФИО:</strong>
+                {{ user.full_name }}
+            </div>
+
+            <div class="profile-item">
+                <strong>Email:</strong>
+                {{ user.email }}
+            </div>
+
+            <div class="profile-item">
+                <strong>Роль:</strong>
+                {{ user.get_role_display }}
+            </div>
+
+            <div class="profile-item">
+                <strong>Дата регистрации:</strong>
+                {{ user.created_at|date:"d.m.Y H:i" }}
+            </div>
+
+        </div>
+
+    </article>
+
+</section>
+
 {% endblock %}

@@ -51,6 +51,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'users'
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        indexes = [
+            models.Index(
+                fields=['email', 'is_active'],
+                name='user_email_active_idx',
+            ),
+        ]
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(role__in=['student', 'teacher', 'admin']),
@@ -220,6 +226,10 @@ class PasswordResetToken(models.Model):
         indexes = [
             models.Index(fields=['user'], name='idx_prt_user_id'),
             models.Index(fields=['expires_at'], name='idx_prt_expires'),
+            models.Index(
+                fields=['token_hash', 'used_at'],
+                name='token_lookup_idx',
+            ),
         ]
         verbose_name = 'Токен восстановления пароля'
         verbose_name_plural = 'Токены восстановления пароля'
@@ -227,3 +237,61 @@ class PasswordResetToken(models.Model):
     def is_valid(self):
         """Токен действителен, если он не использован и срок не истёк."""
         return self.used_at is None and self.expires_at > timezone.now()
+
+
+class Profile(models.Model):
+    """Дополнительные данные пользователя."""
+
+    # Связь один к одному с пользователем
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='profile',
+        verbose_name='Пользователь',
+    )
+    phone = models.CharField(
+        'Телефон', max_length=20, blank=True
+    )
+    created_at = models.DateTimeField(
+        'Создан', auto_now_add=True, db_index=True
+    )
+
+    class Meta:
+        db_table = 'profiles'
+        verbose_name = 'Профиль пользователя'
+        verbose_name_plural = 'Профили пользователей'
+
+    def __str__(self):
+        return self.user.full_name
+
+
+class AIMessage(models.Model):
+    """История диалога пользователя с ИИ-агентом."""
+
+    ROLE_CHOICES = [
+        ('user', 'Пользователь'),
+        ('assistant', 'ИИ-агент'),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='ai_messages',
+        verbose_name='Пользователь',
+    )
+    role = models.CharField(
+        'Роль', max_length=10, choices=ROLE_CHOICES
+    )
+    content = models.TextField('Сообщение')
+    created_at = models.DateTimeField(
+        'Дата сообщения', auto_now_add=True, db_index=True
+    )
+
+    class Meta:
+        db_table = 'ai_messages'
+        ordering = ['created_at']
+        verbose_name = 'Сообщение ИИ-агента'
+        verbose_name_plural = 'Сообщения ИИ-агента'
+
+    def __str__(self):
+        return f'{self.user.email}: {self.role}'

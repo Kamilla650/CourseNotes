@@ -1,9 +1,11 @@
 """Настройки проекта CourseNotes."""
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,6 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
     'core',
     'accounts',
     'api',
@@ -68,18 +72,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 
+# Database
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'coursenotes_django'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-        'OPTIONS': {'connect_timeout': 5},
-        'CONN_MAX_AGE': 60,
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+    )
 }
+
+# Ключ ИИ-провайдера загружается из .env
+AI_API_KEY = os.getenv('AI_PROVIDER_API_KEY')
 
 # Своя модель пользователя (таблица users)
 AUTH_USER_MODEL = 'core.User'
@@ -120,10 +123,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'   
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'profile'
-LOGOUT_REDIRECT_URL = 'login' 
+LOGOUT_REDIRECT_URL = 'login'
+
 # --- Почта ---
 # По умолчанию письма выводятся в консоль (для разработки и тестов)
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
@@ -140,3 +144,23 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or 'noreply@coursenotes.local'
 
 # Время жизни ссылки для сброса пароля, минут
 PASSWORD_RESET_MINUTES = 30
+
+
+# --- Django REST Framework ---
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+# --- JWT (simplejwt) ---
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}

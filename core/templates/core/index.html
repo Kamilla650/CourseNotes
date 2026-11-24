@@ -1,5 +1,103 @@
+
 {% extends 'base.html' %}
+
+{% block title %}Главная — CourseNotes{% endblock %}
+
 {% block content %}
-<h1>Проект запущен</h1>
-<p>Каркас приложения CourseNotes настроен.</p>
+
+<section class="page-section">
+
+    <article class="card">
+
+        <h1>Добро пожаловать в CourseNotes!</h1>
+
+        <p class="page-description">
+            CourseNotes — веб-приложение для организации
+            учебных материалов и ведения конспектов.
+        </p>
+
+        {% if user.is_authenticated %}
+
+            <p>
+                Вы успешно вошли в систему.
+            </p>
+
+            <a href="{% url 'profile' %}" class="btn">
+                Перейти в профиль
+            </a>
+
+        {% else %}
+
+            <p>
+                Войдите в существующую учётную запись
+                или зарегистрируйтесь.
+            </p>
+
+        {% endif %}
+
+    </article>
+
+</section>
+
+<section class="page-section">
+
+    <h2>Начало работы</h2>
+
+    <div class="card-grid">
+
+        {% if user.is_authenticated %}
+
+            <article class="card">
+                <h3>Личный профиль</h3>
+
+                <p>
+                    Просмотрите информацию своей учётной записи.
+                </p>
+
+                <a href="{% url 'profile' %}" class="btn">
+                    Открыть профиль
+                </a>
+            </article>
+
+        {% else %}
+
+            <article class="card">
+                <h3>Вход</h3>
+
+                <p>
+                    Если у вас уже есть аккаунт,
+                    войдите в систему.
+                </p>
+
+                <a href="{% url 'login' %}" class="btn">
+                    Войти
+                </a>
+            </article>
+
+            <article class="card">
+                <h3>Регистрация</h3>
+
+                <p>
+                    Создайте новую учётную запись
+                    для работы с приложением.
+                </p>
+
+                <a href="{% url 'register' %}" class="btn">
+                    Зарегистрироваться
+                </a>
+            </article>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+<aside class="page-section">
+    <p class="page-description">
+        Для перехода между разделами приложения
+        используйте навигацию в верхней части страницы.
+    </p>
+</aside>
+
 {% endblock %}
