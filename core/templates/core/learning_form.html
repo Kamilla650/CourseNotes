@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+<article class="card"><h1>{{ heading }}</h1><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn" type="submit">Сохранить</button> <a href="{% url 'core:courses' %}">Отмена</a></form></article>
+{% endblock %}

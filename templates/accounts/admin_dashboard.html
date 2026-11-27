@@ -1,6 +1,122 @@
+
 {% extends 'base.html' %}
+
 {% block title %}Панель администратора{% endblock %}
+
 {% block content %}
+
 <h1>Панель администратора</h1>
-<p>Эта страница доступна только пользователям с ролью «Администратор».</p>
+<p>Управление образовательной платформой CourseNotes.</p>
+
+<h2>Общая статистика</h2>
+
+<div class="card-grid">
+
+    <article class="card">
+        <h3>Пользователи</h3>
+        <h1>{{ user_count }}</h1>
+    </article>
+
+    <article class="card">
+        <h3>Студенты</h3>
+        <h1>{{ student_count }}</h1>
+    </article>
+
+    <article class="card">
+        <h3>Преподаватели</h3>
+        <h1>{{ teacher_count }}</h1>
+    </article>
+
+    <article class="card">
+        <h3>Учебные курсы</h3>
+        <h1>{{ course_count }}</h1>
+    </article>
+
+    <article class="card">
+        <h3>Конспекты</h3>
+        <h1>{{ note_count }}</h1>
+    </article>
+
+    <article class="card">
+        <h3>Самопроверки</h3>
+        <h1>{{ result_count }}</h1>
+    </article>
+
+    <article class="card">
+        <h3>Записи на курсы</h3>
+        <h1>{{ enrollment_count }}</h1>
+    </article>
+
+</div>
+
+<h2>Пользователи системы</h2>
+
+<article class="card" style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>ФИО</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in users %}
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px;">{{ item.full_name }}</td>
+                <td>{{ item.email }}</td>
+                <td>{{ item.get_role_display }}</td>
+                <td>
+                    {% if item.is_active %}
+                        Активен
+                    {% else %}
+                        Заблокирован
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Пользователей нет.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</article>
+
+<h2>Учебные курсы</h2>
+
+<div class="card-grid">
+    {% for course in courses %}
+        <article class="card">
+            <h3>{{ course.title }}</h3>
+            <p>Преподаватель: {{ course.teacher.full_name }}</p>
+            <a class="btn"
+               href="{% url 'core:course_detail' course.pk %}">
+                Открыть курс
+            </a>
+        </article>
+    {% empty %}
+        <p>Курсов пока нет.</p>
+    {% endfor %}
+</div>
+
+<h2>Последние результаты обучения</h2>
+
+{% for result in results %}
+    <article class="card">
+        <h3>{{ result.user.full_name }}</h3>
+        <p>Конспект: {{ result.note.title }}</p>
+        <p>
+            Правильных ответов:
+            {{ result.correct_count }} из {{ result.total_count }}
+        </p>
+        <p>{{ result.passed_at|date:"d.m.Y H:i" }}</p>
+    </article>
+{% empty %}
+    <article class="card">
+        <p>Результатов пока нет.</p>
+    </article>
+{% endfor %}
+
 {% endblock %}

@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+<article class="card"><h1>{{ note.title }}</h1><p>Автор: {{ note.author.full_name }}</p><div>{{ note.content|linebreaksbr }}</div>{% if note.summary %}<h2>Краткое содержание</h2><p>{{ note.summary|linebreaksbr }}</p>{% endif %}{% if note.questions.exists %}<p><a class="btn" href="{% url 'core:quiz' note.course_id note.pk %}">Пройти самопроверку</a></p>{% endif %}{% if can_edit %}{% if not note.questions.exists %}<form method="post" action="{% url 'core:generate' note.course_id note.pk %}">{% csrf_token %}<button class="btn" type="submit">Сформировать содержание и вопросы с ИИ</button></form>{% endif %}<p><a class="btn" href="{% url 'core:note_edit' note.course_id note.pk %}">Редактировать</a></p>{% endif %}<p><a href="{% url 'core:course_detail' note.course_id %}">Вернуться к курсу</a></p></article>
+{% endblock %}

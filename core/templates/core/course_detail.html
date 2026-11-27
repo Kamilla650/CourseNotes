@@ -1,0 +1,158 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<article class="card">
+    <h1>{{ course.title }}</h1>
+
+    <p>{{ course.description|linebreaksbr }}</p>
+
+    <p>
+        <strong>Преподаватель:</strong>
+        {{ course.teacher.full_name }}
+    </p>
+
+    {% if can_manage %}
+        <p>
+            <a class="btn"
+               href="{% url 'core:course_edit' course.pk %}">
+                Редактировать курс
+            </a>
+        </p>
+    {% endif %}
+
+    {% if user.role == "student" %}
+        {% if enrolled %}
+            <p>Вы записаны на курс.</p>
+        {% else %}
+            <form method="post"
+                  action="{% url 'core:enroll' course.pk %}">
+                {% csrf_token %}
+                <button class="btn" type="submit">
+                    Записаться на курс
+                </button>
+            </form>
+        {% endif %}
+    {% endif %}
+</article>
+
+<h2>Конспекты</h2>
+
+{% if can_note %}
+
+    <p>
+        <a class="btn"
+           href="{% url 'core:note_new' course.pk %}">
+            Создать конспект
+        </a>
+    </p>
+
+    <div class="card-grid">
+
+        {% for note in notes %}
+
+            <article class="card">
+                <h3>{{ note.title }}</h3>
+
+                <p>
+                    {{ note.author.full_name }} ·
+                    {% if note.is_published %}
+                        Опубликован
+                    {% else %}
+                        Черновик
+                    {% endif %}
+                </p>
+
+                <a class="btn"
+                   href="{% url 'core:note_detail' course.pk note.pk %}">
+                    Читать
+                </a>
+            </article>
+
+        {% empty %}
+
+            <p>Конспектов пока нет.</p>
+
+        {% endfor %}
+
+    </div>
+
+{% else %}
+
+    <p>Материалы доступны участникам курса.</p>
+
+{% endif %}
+
+
+{% if can_manage %}
+
+    <h2>Студенты курса</h2>
+
+    <article class="card">
+
+        <p>
+            <strong>Количество студентов:</strong>
+            {{ student_count }}
+        </p>
+
+        {% for enrollment in students %}
+
+            <p>
+                <strong>
+                    {{ enrollment.student.full_name }}
+                </strong>
+                — {{ enrollment.student.email }}
+            </p>
+
+        {% empty %}
+
+            <p>На курс пока никто не записался.</p>
+
+        {% endfor %}
+
+    </article>
+
+    <h2>Результаты студентов</h2>
+
+    {% for result in student_results %}
+
+        <article class="card">
+
+            <h3>{{ result.user.full_name }}</h3>
+
+            <p>
+                <strong>Конспект:</strong>
+                {{ result.note.title }}
+            </p>
+
+            <p>
+                <strong>Правильных ответов:</strong>
+                {{ result.correct_count }}
+                из {{ result.total_count }}
+            </p>
+
+            <p>
+                <strong>Дата прохождения:</strong>
+                {{ result.passed_at|date:"d.m.Y H:i" }}
+            </p>
+
+        </article>
+
+    {% empty %}
+
+        <article class="card">
+            <p>Студенты пока не проходили самопроверку.</p>
+        </article>
+
+    {% endfor %}
+
+{% endif %}
+
+<p>
+    <a href="{% url 'core:courses' %}">
+        Вернуться к списку курсов
+    </a>
+</p>
+
+{% endblock %}

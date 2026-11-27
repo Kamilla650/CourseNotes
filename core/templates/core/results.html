@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<h1>Мои результаты</h1><div class="card-grid">{% for r in results %}<article class="card"><h2>{{ r.note.title }}</h2><p>Правильных ответов: {{ r.correct_count }} из {{ r.total_count }}</p><p>{{ r.passed_at|date:'d.m.Y H:i' }}</p></article>{% empty %}<p>Вы ещё не проходили самопроверку.</p>{% endfor %}</div>{% endblock %}

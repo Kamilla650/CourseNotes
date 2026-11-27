@@ -1,0 +1,2 @@
+{% extends 'base.html' %}
+{% block content %}<article class="card"><h1>Самопроверка: {{ note.title }}</h1><p>Введите короткие точные ответы.</p><form method="post">{% csrf_token %}{% for q in questions %}<p><label for="answer_{{ q.pk }}">{{ forloop.counter }}. {{ q.question_text }}</label><input id="answer_{{ q.pk }}" name="answer_{{ q.pk }}" maxlength="255" required></p>{% endfor %}<button class="btn">Завершить</button></form></article>{% endblock %}

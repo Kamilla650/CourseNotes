@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Учебные курсы</h1>{% if user.role == "teacher" or user.role == "admin" %}<p><a class="btn" href="{% url 'core:course_new' %}">Создать курс</a></p>{% endif %}<div class="card-grid">{% for course in courses %}<article class="card"><h2>{{ course.title }}</h2><p>{{ course.description|truncatechars:180 }}</p><p>Преподаватель: {{ course.teacher.full_name }}</p><a class="btn" href="{% url 'core:course_detail' course.pk %}">Открыть</a></article>{% empty %}<p>Курсов пока нет.</p>{% endfor %}</div>
+{% endblock %}

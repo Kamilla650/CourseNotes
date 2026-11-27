@@ -83,7 +83,20 @@ def profile_view(request):
 
 @role_required(['admin'])
 def admin_dashboard(request):
-    return render(request, 'accounts/admin_dashboard.html')
+    from core.models import Course, Note, Result, Enrollment
+
+    return render(request, 'accounts/admin_dashboard.html', {
+        'users': User.objects.order_by('full_name'),
+        'courses': Course.objects.select_related('teacher').order_by('title'),
+        'user_count': User.objects.count(),
+        'student_count': User.objects.filter(role='student').count(),
+        'teacher_count': User.objects.filter(role='teacher').count(),
+        'course_count': Course.objects.count(),
+        'note_count': Note.objects.count(),
+        'result_count': Result.objects.count(),
+        'enrollment_count': Enrollment.objects.count(),
+        'results': Result.objects.select_related('user', 'note').order_by('-passed_at')[:20],
+    })
 
 
 def forgot_password_view(request):
