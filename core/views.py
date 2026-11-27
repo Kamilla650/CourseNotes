@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 
 from .services import ask_ai
+from .rate_limit import allow_ai_request
 from .models import AIMessage
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ def ai_chat(request):
     message = ''
     answer = ''
     error = ''
+    status = 200
 
     if request.method == 'POST':
         message = request.POST.get('message', '').strip()
@@ -38,6 +40,10 @@ def ai_chat(request):
 
         elif len(message) > 2000:
             error = 'Сообщение слишком длинное. Максимум 2000 символов.'
+
+        elif not allow_ai_request(request.user):
+            error = '???????? ????? ????????. ?????????? ?????.'
+            status = 429
 
         else:
             try:
@@ -73,4 +79,4 @@ def ai_chat(request):
         'answer': answer,
         'error': error,
         'history': history,
-    })
+    }, status=status)

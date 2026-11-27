@@ -8,11 +8,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from .models import Course, Question, Result
 from .learning import visible_notes, manages
+from .rate_limit import allow_ai_request
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +46,12 @@ def generate(request, pk, note_pk):
             'core:note_detail',
             pk=pk,
             note_pk=note_pk
+        )
+
+    if not allow_ai_request(request.user):
+        return HttpResponse(
+            '???????? ????? ????????. ?????????? ?????.',
+            status=429
         )
 
     try:
